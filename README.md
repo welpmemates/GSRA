@@ -16,3 +16,13 @@ AI-powered system to evaluate site suitability across Gujarat using geospatial d
 
 ## Status
 Phase 0 — Setup complete
+
+## SOME IMP STUFF (REMOVE LATER)
+```bash
+postgresql user: geouser
+postgresql pass: geopass
+
+source venv/bin/activate
+
+postgresql://geouser:geopass@localhost:5432/geosite
+```
