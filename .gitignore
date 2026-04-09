@@ -1,0 +1,21 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# Data (VERY IMPORTANT — huge files)
+data/raw/
+data/processed/
+
+# Env
+.env
+
+# OSRM files
+*.osrm*
+
+# Logs
+*.log
