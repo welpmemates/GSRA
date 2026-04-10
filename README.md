@@ -25,4 +25,6 @@ postgresql pass: geopass
 source venv/bin/activate
 
 postgresql://geouser:geopass@localhost:5432/geosite
+
+INSTALL: sudo apt install osmium-tool
 ```
