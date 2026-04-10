@@ -7,9 +7,10 @@ __pycache__/
 node_modules/
 dist/
 
-# Data (VERY IMPORTANT — huge files)
+# Data
 data/raw/
 data/processed/
+backend/etl/cache/
 
 # Env
 .env
