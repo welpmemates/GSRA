@@ -10,7 +10,6 @@ dist/
 # Data
 data/raw/
 data/processed/
-backend/etl/cache/
 
 # Env
 .env
