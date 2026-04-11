@@ -1,4 +1,4 @@
-# 🧠 GeoSpatial Site Readiness Analyzer (GSRA)
+# GeoSpatial Site Readiness Analyzer (GSRA)
 
 An AI-powered geospatial decision system that evaluates optimal site locations across the state of Gujarat, India.
 
@@ -6,7 +6,7 @@ GSRA combines **PostGIS spatial queries**, **multi-layer geospatial data**, and 
 
 ---
 
-# 🚀 What This Project Does
+# What This Project Does
 
 Given a latitude and longitude, the system:
 
@@ -25,7 +25,7 @@ Given a latitude and longitude, the system:
   * Gaussian competitor modeling
   * Constraint-based filtering
 
-### 📊 Output:
+### Output:
 
 ```json
 {
@@ -39,20 +39,20 @@ Given a latitude and longitude, the system:
 
 ---
 
-# 📦 What Has Been Completed (Phase 0 → Phase 5)
+# What Has Been Completed (Phase 0 → Phase 5)
 
-## ✅ Phase 0 — Project Setup
+## Phase 0 — Project Setup
 
 * Monorepo structure created
 * Tech stack finalized
 
-## ✅ Phase 1 — Environment Setup
+## Phase 1 — Environment Setup
 
 * PostgreSQL + PostGIS installed
 * FastAPI backend initialized
 * React frontend scaffolded
 
-## ✅ Phase 2 — Data Acquisition
+## Phase 2 — Data Acquisition
 
 * OSM PBF (Western India)
 * District boundaries (GADM)
@@ -61,7 +61,7 @@ Given a latitude and longitude, the system:
 * Air Quality data (OpenAQ)
 * Flood dataset (synthetic)
 
-## ✅ Phase 3 — ETL Pipeline
+## Phase 3 — ETL Pipeline
 
 * OSM extraction using `osmium-tool`
 * CRS standardization → **EPSG:32643**
@@ -70,7 +70,7 @@ Given a latitude and longitude, the system:
 * Spatial indexing (GiST)
 * H3 grid generation (resolution 7 & 8)
 
-## ✅ Phase 4 — Scoring Engine
+## Phase 4 — Scoring Engine
 
 * AHP weight system
 * PostGIS-based metric extraction
@@ -79,7 +79,7 @@ Given a latitude and longitude, the system:
 * Constraint-based filtering
 * `/api/score` endpoint (fully functional)
 
-## ✅ Phase 5 — Backend API Expansion
+## Phase 5 — Backend API Expansion
 
 * POST `/api/score` → Site readiness scoring
 * GET `/api/layers/{name}` → Raw spatial data (GeoJSON)
@@ -91,7 +91,7 @@ Given a latitude and longitude, the system:
 
 ---
 
-# 🏗️ Project Structure
+# Project Structure
 
 ```
 GSRA/
@@ -146,7 +146,7 @@ GSRA/
 
 ---
 
-# ⚙️ Environment Setup
+# Environment Setup
 
 ## 1. Clone Repository
 
@@ -200,7 +200,7 @@ sudo apt install osmium-tool gdal-bin
 
 ---
 
-# 📥 Data Setup (IMPORTANT)
+# Data Setup (IMPORTANT)
 
 Place all datasets in:
 
@@ -218,7 +218,7 @@ Required files:
 
 ---
 
-# 🔄 ETL Pipeline (Run Once)
+# ETL Pipeline (Run Once)
 
 Run in order:
 
@@ -234,7 +234,7 @@ python 05_generate_h3_grid.py
 
 ---
 
-# ✅ Verify Setup
+# Verify Setup
 
 ## 1. Check DB Connection
 
@@ -279,7 +279,7 @@ WHERE ST_DWithin(
 
 ---
 
-# ▶️ Run the Backend
+# Run the Backend
 
 ```bash
 cd backend
@@ -290,11 +290,11 @@ uvicorn app.main:app --reload --port 8000
 
 Open:
 
-👉 http://localhost:8000/docs
+http://localhost:8000/docs
 
 ---
 
-# 🧪 Demo Example
+# Demo Example
 
 ### Request:
 
@@ -327,60 +327,60 @@ curl -X POST http://localhost:8000/api/score \
 
 ---
 
-# 📊 Interpretation
+# Interpretation
 
 * Moderate population → decent score
 * Strong road access → high transport score
 * High competition → score drops significantly
 * Low flood risk → good environmental score
 
-👉 Final score reflects **real-world trade-offs**
+Final score reflects **real-world trade-offs**
 
 ---
 
-# 🚧 What’s Left (Upcoming Phases)
+# What’s Left (Upcoming Phases)
 
-## 🟣 Phase 6 — Spatial Analysis
+## Phase 6 — Spatial Analysis
 
 * H3 aggregation
 * DBSCAN clustering
 * Getis-Ord Gi* hotspot detection
 
-## 🟣 Phase 7 — Frontend Map UI
+## Phase 7 — Frontend Map UI
 
 * MapLibre integration
 * Click-to-score interaction
 * Layer toggles
 * Score visualization (charts)
 
-## 🟣 Phase 8 — Advanced ML (RL Optimizer)
+## Phase 8 — Advanced ML (RL Optimizer)
 
 * PPO-based site selection
 * Multi-location optimization
 * Coverage vs competition balancing
 
-## 🟣 Phase 9 — Enterprise Features
+## Phase 9 — Enterprise Features
 
 * CSV upload
 * Schema auto-mapping
 * Custom region analysis
 * Report export (CSV/PDF)
 
-## 🟣 Phase 10 — Compliance & Optimization
+## Phase 10 — Compliance & Optimization
 
 * National Geospatial Policy (NGP 2022)
 * Data anonymization (k-anonymity)
 * Query optimization
 * Logging & error handling
 
-## 🟣 Phase 11 — Testing & Debugging
+## Phase 11 — Testing & Debugging
 
 * API testing
 * Spatial query validation
 * CRS verification
 * Edge case handling
 
-## 🟣 Phase 12 — Final Documentation & Demo
+## Phase 12 — Final Documentation & Demo
 
 * README finalization
 * Architecture diagram
@@ -389,7 +389,7 @@ curl -X POST http://localhost:8000/api/score \
 
 ---
 
-# 🧠 Key Highlights
+# Key Highlights
 
 * Full Gujarat-scale geospatial system
 * 1M+ spatial features processed
@@ -399,7 +399,7 @@ curl -X POST http://localhost:8000/api/score \
 
 ---
 
-# 📌 Notes
+# Notes
 
 * All spatial operations use **EPSG:32643 (UTM Zone 43N)**
 * Distance calculations are in **meters**
