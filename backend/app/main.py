@@ -20,6 +20,7 @@ from app.db.spatial_queries import engine, fetch_site_metrics
 from app.routing.isochrone import compute_isochrone
 from app.scoring.engine import compute_final_score
 from app.scoring.weights import USE_CASE_PRESETS, get_weights, ScoringWeights
+from app.optimizer import optimize_weights
 
 
 # ── Ahmedabad Bounding Box ────────────────────────────────────
@@ -107,6 +108,10 @@ class IsochroneRequest(BaseModel):
             raise ValueError("Each value in minutes must be between 1 and 60")
         return sorted(set(v))
 
+class OptimizeRequest(BaseModel):
+    lat: float
+    lon: float
+    use_case: str = "retail"
 
 class CompareRequest(BaseModel):
     locations: list[ScoreRequest] = Field(..., min_length=1, max_length=10)
@@ -175,6 +180,37 @@ def score_site(request: ScoreRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Scoring failed: {str(e)}")
+    
+# ── Score ─────────────────────────────────────────────────────
+
+@app.post("/api/optimize")
+def optimize_location(req: OptimizeRequest):
+    """
+    Phase 8 — Weight Optimization Endpoint
+
+    RL Interpretation:
+    State  = (lat, lon, metrics)
+    Action = weight selection
+    Reward = final_score
+
+    Uses lightweight random + evolutionary search
+    """
+
+    try:
+        best_weights, best_score = optimize_weights(
+            engine=engine,
+            lat=req.lat,
+            lon=req.lon,
+            use_case=req.use_case,
+        )
+
+        return {
+            "optimal_weights": best_weights,
+            "best_score": best_score,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── Layers (filtered to Ahmedabad) ────────────────────────────
