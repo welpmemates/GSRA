@@ -52,7 +52,7 @@ export function normalizeScoreResponse(data) {
   const bd = data.breakdown ?? {};
   // Sub-scores are 0–1 fractions; multiply by 100 for display
   return {
-    total:        Math.min(100, Math.round(data.final_score ?? 0)),
+    total:        Math.min(100, Math.round((data.final_score ?? 0) / 3)),
     demographics: Math.round((bd.demographic_score   ?? 0) * 100),
     transport:    Math.round((bd.transport_score      ?? 0) * 100),
     competitors:  Math.round((bd.competitor_score     ?? 0) * 100),
@@ -62,7 +62,7 @@ export function normalizeScoreResponse(data) {
     raw_metrics:      data.raw_metrics      ?? {},
     constraints:      data.constraints      ?? {},
     weights_applied:  data.weights_applied  ?? {},
-    final_score:      data.final_score      ?? 0,
+    final_score:      Math.min(100, Math.round((data.final_score ?? 0) / 3)),
   };
 }
 
