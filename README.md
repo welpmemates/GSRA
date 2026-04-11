@@ -39,7 +39,7 @@ Given a latitude and longitude, the system:
 
 ---
 
-# What Has Been Completed (Phase 0 → Phase 5)
+# What Has Been Completed (Phase 0 → Phase 6)
 
 ## Phase 0 — Project Setup
 
@@ -88,6 +88,12 @@ Given a latitude and longitude, the system:
 * POST `/api/isochrone` → Travel-time polygons (OSRM)
 * POST `/api/compare` → Multi-location comparison
 * POST `/api/export` → CSV export
+
+## Phase 6 — Spatial Analysis
+
+* H3 aggregation
+* DBSCAN clustering
+* Getis-Ord Gi* hotspot detection
 
 ---
 
@@ -339,12 +345,6 @@ Final score reflects **real-world trade-offs**
 ---
 
 # What’s Left (Upcoming Phases)
-
-## Phase 6 — Spatial Analysis
-
-* H3 aggregation
-* DBSCAN clustering
-* Getis-Ord Gi* hotspot detection
 
 ## Phase 7 — Frontend Map UI
 
