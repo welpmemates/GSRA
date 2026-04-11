@@ -186,7 +186,7 @@ export default function IndiaMap() {
   }
 
   async function loadClusters(map) {
-    const data = await fetchClusters(40, 2);
+    const data = await fetchClusters(120, 1.5);
     if (data.__fallback) addToast({ title: "Clusters", message: "Using fallback cluster data." });
     setSourceData(map, "clusters", data);
   }
