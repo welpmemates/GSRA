@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Syne:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Custom scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(20, 184, 166, 0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(20, 184, 166, 0.5); }
+
+/* ── Base ──────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  overflow-x: hidden;
+  background: #FFFFFF;
+  color: #000000;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+}
+
+/* ── Selection ─────────────────────────────────────────────────── */
+::selection {
+  background: rgba(20, 184, 166, 0.2);
+  color: #333333;
+}
+
+/* ── Cursor ─────────────────────────────────────────────────────── */
+.cursor-crosshair { cursor: crosshair; }
+
+/* ── Glassmorphism panel ─────────────────────────────────────────── */
+@layer components {
+  .gs-panel {
+    @apply bg-white border border-gray-200 backdrop-blur-xl;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .gs-panel-hot {
+    @apply bg-white backdrop-blur-xl;
+    border: 1px solid #E5E5E5;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .gs-btn-ghost {
+    @apply transition-all duration-150 cursor-pointer;
+    background: #F0F0F0;
+    border: 1px solid #E5E5E5;
+    color: #000000;
+  }
+  .gs-btn-ghost:hover {
+    background: #E5E5E5;
+  }
+
+  .gs-btn-primary {
+    @apply text-white font-semibold transition-all duration-150 cursor-pointer;
+    background: #000000;
+  }
+  .gs-btn-primary:hover {
+    background: #333333;
+  }
+
+  /* FIX: replaced @apply font-display (not a Tailwind default utility) with
+     explicit CSS — font-display is defined in tailwind.config.js as a custom
+     fontFamily extension, but @apply only works for utility classes, not
+     fontFamily values. Use the CSS property directly instead. */
+  .gs-label {
+    font-family: 'Syne', system-ui, sans-serif;
+    @apply tracking-widest uppercase;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: #777777;
+    font-weight: 600;
+  }
+
+  .gs-mono {
+    font-family: 'DM Mono', monospace;
+  }
+
+  .gs-display {
+    font-family: 'Syne', system-ui, sans-serif;
+  }
+
+  /* Thin divider */
+  .gs-divider {
+    @apply w-full;
+    height: 1px;
+    background: #E5E5E5;
+  }
+
+  /* Zone row card */
+  .zone-row {
+    @apply rounded-xl cursor-pointer transition-all duration-150;
+    background: #F9F9F9;
+    border: 1px solid rgba(20, 184, 166, 0.1);
+  }
+  .zone-row:hover {
+    background: #F0F9F8;
+    border-color: rgba(20, 184, 166, 0.3);
+  }
+
+  /* Score color utilities - all teal */
+  .score-good  { color: #14B8A6; }
+  .score-warn  { color: #14B8A6; }
+  .score-bad   { color: #14B8A6; }
+
+  .score-bg-good  { background: rgba(20, 184, 166, 0.08); border: 1px solid rgba(20, 184, 166, 0.2); }
+  .score-bg-warn  { background: rgba(20, 184, 166, 0.08); border: 1px solid rgba(20, 184, 166, 0.2); }
+  .score-bg-bad   { background: rgba(20, 184, 166, 0.08);  border: 1px solid rgba(20, 184, 166, 0.2); }
+
+  /* Tri-color accent bar */
+  .tri-accent {
+    height: 2.5px;
+    background: linear-gradient(90deg, #CFA242, #DC5438 50%, #3DB88E);
+  }
+
+  /* Dot grid background */
+  .dot-grid {
+    background-image: radial-gradient(circle, rgba(205,162,68,0.22) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  /* Layer button active */
+  .layer-btn-active {
+    background: rgba(207,162,66,0.11);
+    border: 0.5px solid rgba(207,162,66,0.28);
+  }
+
+  /* Nav pill active */
+  .nav-pill-active {
+    font-weight: 600;
+    color: #080500;
+  }
+
+  /* Table row */
+  .table-row-hover:hover {
+    background: rgba(255,255,255,0.035);
+  }
+}
+
+/* ── Animations ─────────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+.animate-pulse-dot { animation: pulse-dot 2.4s ease-in-out infinite; }
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up { animation: slide-up 0.24s cubic-bezier(0.4,0,0.2,1); }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-in { animation: fade-in 0.2s ease-out; }
+
+@keyframes score-ring {
+  from { stroke-dasharray: 0 999; }
+}
+.animate-score-ring { animation: score-ring 0.85s cubic-bezier(0.4,0,0.2,1) forwards; }

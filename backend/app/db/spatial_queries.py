@@ -10,6 +10,17 @@ engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 # ALWAYS transforms WGS84 input → EPSG:32643 (UTM 43N) before spatial ops
 _POINT = "ST_Transform(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), 32643)"
 
+# Ahmedabad bounding box (UTM 32643)
+AHMEDABAD_FILTER = """
+ST_Intersects(
+    geometry,
+    ST_Transform(
+        ST_MakeEnvelope(72.45, 22.95, 72.75, 23.15, 4326),
+        32643
+    )
+)
+"""
+
 
 def fetch_site_metrics(lat: float, lon: float) -> dict:
     """
@@ -35,6 +46,7 @@ def fetch_site_metrics(lat: float, lon: float) -> dict:
             SELECT COUNT(*) AS pop_proxy
             FROM   buildings
             WHERE  ST_DWithin(geometry, {_POINT}, 5000)
+            AND {AHMEDABAD_FILTER}
         """), params).fetchone()
         pop_5km = float(pop_result.pop_proxy) if pop_result else 0.0
 
@@ -43,6 +55,7 @@ def fetch_site_metrics(lat: float, lon: float) -> dict:
             SELECT COUNT(*) AS road_count
             FROM   roads
             WHERE  ST_DWithin(geometry, {_POINT}, 1000)
+            AND {AHMEDABAD_FILTER}
         """), params).fetchone()
         road_count_1km = int(road_result.road_count) if road_result else 0
 
@@ -51,6 +64,7 @@ def fetch_site_metrics(lat: float, lon: float) -> dict:
             SELECT COUNT(*) AS comp_count
             FROM   competitors
             WHERE  ST_DWithin(geometry, {_POINT}, 2000)
+            AND {AHMEDABAD_FILTER}
         """), params).fetchone()
         competitor_count_2km = int(comp_result.comp_count) if comp_result else 0
 
@@ -59,6 +73,7 @@ def fetch_site_metrics(lat: float, lon: float) -> dict:
             SELECT COALESCE(AVG(risk), 0) AS avg_flood_risk
             FROM   flood_zones
             WHERE  ST_Intersects(geometry, {_POINT})
+            AND {AHMEDABAD_FILTER}
         """), params).fetchone()
         flood_risk = float(flood_result.avg_flood_risk) if flood_result else 0.0
 
@@ -80,6 +95,7 @@ def fetch_site_metrics(lat: float, lon: float) -> dict:
                            'office', 'mixed_use'
                        )
                   AND  ST_Intersects(lu.geometry, buf.geom)
+                  AND {AHMEDABAD_FILTER}
             )
             SELECT
                 COALESCE(
@@ -99,6 +115,7 @@ def fetch_site_metrics(lat: float, lon: float) -> dict:
                 WHERE  landuse IN ('forest', 'nature_reserve', 'military',
                                    'conservation', 'protected_area')
                   AND  ST_Intersects(geometry, {_POINT})
+                  AND {AHMEDABAD_FILTER}
             ) AS is_restricted
         """), params).fetchone()
         in_restricted_zone = bool(restricted_result.is_restricted) if restricted_result else False
