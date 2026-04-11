@@ -40,6 +40,11 @@ export function toBackendUseCase(frontendUseCase) {
     "EV Charging": "ev_charging",
     "Warehouse":   "warehouse",
     "Telecom":     "telecom",
+    "Grocery Store": "grocery_store",
+    "Clothing Store": "clothing_store",
+    "Electronics Store": "electronic_store",
+    "Pharmacy": "pharmacy",
+    "Luxury Retail": "luxury_retail",
   };
   return map[frontendUseCase] ?? "retail";
 }

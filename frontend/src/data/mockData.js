@@ -1,11 +1,16 @@
 // ── Use-case weight profiles ─────────────────────────────────────
-export const USE_CASES = ["Retail", "EV Charging", "Warehouse", "Telecom"];
+export const USE_CASES = ["Retail", "EV Charging", "Warehouse", "Telecom", "Grocery Store", "Clothing Store", "Electronics Store", "Pharmacy", "Luxury Retail"];
 
 export const WEIGHT_PROFILES = {
   Retail:       { demographics:0.30, transport:0.25, competitors:0.20, zoning:0.15, environment:0.10 },
   "EV Charging":{ demographics:0.10, transport:0.45, competitors:0.10, zoning:0.20, environment:0.15 },
   Warehouse:    { demographics:0.05, transport:0.40, competitors:0.05, zoning:0.35, environment:0.15 },
   Telecom:      { demographics:0.20, transport:0.20, competitors:0.05, zoning:0.30, environment:0.25 },
+  "Grocery Store": { demographics: 0.40, transport: 0.30, competitors: 0.10, zoning: 0.10, environment: 0.10 },
+  "Clothing Store": { demographics: 0.30, transport: 0.25, competitors: 0.25, zoning: 0.10, environment: 0.10 },
+  "Electronics Store": { demographics: 0.25, transport: 0.35, competitors: 0.20, zoning: 0.10, environment: 0.10 },
+  "Pharmacy": { demographics: 0.35, transport: 0.25, competitors: 0.10, zoning: 0.10, environment: 0.20 },
+  "Luxury Retail": { demographics: 0.20, transport: 0.30, competitors: 0.15, zoning: 0.20, environment: 0.15 },
 };
 
 // ── Data layers ─────────────────────────────────────────────────

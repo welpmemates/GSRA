@@ -83,6 +83,41 @@ USE_CASE_PRESETS: dict[str, ScoringWeights] = {
         land_use       = 0.20,
         environmental  = 0.15,
     ),
+    "grocery_store": ScoringWeights(
+        demographic    = 0.40,
+        transportation = 0.30,
+        poi_competitor = 0.10,
+        land_use       = 0.10,
+        environmental  = 0.10,
+    ),
+    "clothing_store": ScoringWeights(
+        demographic    = 0.30,
+        transportation = 0.25,
+        poi_competitor = 0.25,
+        land_use       = 0.10,
+        environmental  = 0.10,
+    ),
+    "electronic_store": ScoringWeights(
+        demographic    = 0.25,
+        transportation = 0.35,
+        poi_competitor = 0.20,
+        land_use       = 0.10,
+        environmental  = 0.10,
+    ),
+    "pharmacy": ScoringWeights(
+        demographic    = 0.35,
+        transportation = 0.25,
+        poi_competitor = 0.10,
+        land_use       = 0.10,
+        environmental  = 0.20,
+    ),
+    "luxury_retail": ScoringWeights(
+        demographic    = 0.20,
+        transportation = 0.30,
+        poi_competitor = 0.15,
+        land_use       = 0.20,
+        environmental  = 0.15,
+    ),
 }
 
 # Validate all presets at import time — fail loudly if someone edits badly
