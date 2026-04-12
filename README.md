@@ -39,7 +39,7 @@ Given a latitude and longitude, GSRA:
 
 ---
 
-## Intelligence Layer (Phase 8)
+## Intelligence Layer
 
 GSRA includes an **AI-inspired optimization module** that:
 
