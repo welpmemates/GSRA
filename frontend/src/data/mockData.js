@@ -15,7 +15,6 @@ export const WEIGHT_PROFILES = {
 
 // ── Data layers ─────────────────────────────────────────────────
 export const LAYERS = [
-  { id: "demo",  label: "Demographics",       icon: "◉", description: "Population density, income, age distribution" },
   { id: "roads", label: "Roads & transit",    icon: "⊟", description: "Highway proximity, road density, transit stops" },
   { id: "poi",   label: "Points of interest", icon: "◈", description: "Competitors, malls, anchor tenants" },
   { id: "zone",  label: "Zoning",             icon: "⊡", description: "Commercial, industrial, residential zones" },

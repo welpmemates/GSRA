@@ -13,7 +13,7 @@ import {
 } from "../../api/api";
 
 const AHMEDABAD_CENTER = [72.5850, 23.0225];
-const AHMEDABAD_ZOOM   = 12;
+const AHMEDABAD_ZOOM   = 10.5;
 const MAX_BOUNDS       = [[72.35, 22.85], [72.95, 23.35]];
 const EMPTY_FC         = { type: "FeatureCollection", features: [] };
 const MANAGED_SOURCES  = ["points", "clusters", "hotspots", "isochrones"];
@@ -24,7 +24,8 @@ const LAYER_TO_BACKEND = {
   poi:   "competitors",
   zone:  "land_use",
   flood: "flood_zones",
-  h3:    "h3_grid_res8",
+  h3_big:   "h3_grid_res7",
+  h3_small: "h3_grid_res8",
 };
 
 // Persistent cache — survives re-renders
@@ -55,10 +56,11 @@ function setSourceData(map, id, data) {
 }
 
 export default function IndiaMap() {
-  const containerRef = useRef(null);
-  const mapRef       = useRef(null);
-  const loadedRef    = useRef(false);
-  const markerRef    = useRef(null); // dropped pin marker
+  const containerRef  = useRef(null);
+  const mapRef        = useRef(null);
+  const loadedRef     = useRef(false);
+  const markerRef     = useRef(null);
+  const lastClickRef  = useRef(null);
 
   const {
     activeLayers, overlays, weights, satelliteView,
@@ -75,7 +77,7 @@ export default function IndiaMap() {
         id: "heatmap", type: "heatmap", source: "points",
         paint: {
           "heatmap-weight":  ["interpolate", ["linear"], ["get", "score"], 0, 0, 100, 1],
-          "heatmap-radius":  ["interpolate", ["linear"], ["zoom"], 8, 20, 14, 50],
+          "heatmap-radius":  ["interpolate", ["linear"], ["zoom"], 8, 40, 14, 80],
           "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], 8, 0.75, 14, 0.9],
           "heatmap-color": ["interpolate", ["linear"], ["heatmap-density"],
             0, "rgba(0,0,255,0)", 0.2, "rgba(0,128,255,0.5)",
@@ -107,7 +109,7 @@ export default function IndiaMap() {
       if (!map.getLayer("hotspots")) map.addLayer({
         id: "hotspots", type: "circle", source: "hotspots",
         paint: {
-          "circle-radius": 10, "circle-color": "#FFD700",
+          "circle-radius": 10, "circle-color": ["interpolate", ["linear"], ["get", "gi_z"], 2, "#60A5FA", 4, "#FACC15", 6, "#EF4444"],
           "circle-stroke-color": "#000", "circle-stroke-width": 2, "circle-opacity": 0.85,
         },
       });
@@ -142,7 +144,7 @@ export default function IndiaMap() {
     Object.keys(LAYER_TO_BACKEND).forEach((layerId) => {
       const glId     = `datalayer-${layerId}`;
       const sourceId = `datalayer-src-${layerId}`;
-      const isOn     = al.includes(layerId);
+      const isOn = layerId === "h3_big" || layerId === "h3_small" ? al.includes("h3") : al.includes(layerId);
       if (isOn) {
         if (!map.getSource(sourceId))
           map.addSource(sourceId, { type: "geojson", data: layerCache[layerId] ?? EMPTY_FC });
@@ -150,20 +152,38 @@ export default function IndiaMap() {
           if (layerId === "roads")
             map.addLayer({ id: glId, type: "line", source: sourceId,
               paint: { "line-color": "#64b5f6", "line-width": 1, "line-opacity": 0.7 } });
-          else if (layerId === "h3")
-            map.addLayer({ id: glId, type: "fill", source: sourceId,
+          else if (layerId === "h3_big") {
+            map.addLayer({
+              id: glId,
+              type: "fill",
+              source: sourceId,
+              maxzoom: 10.9,
               paint: {
-                "fill-color": ["interpolate", ["linear"], ["get", "avg_score"],
-                  0, "#1a237e", 30, "#1565C0", 60, "#00897B", 85, "#00e676", 100, "#fff"],
-                "fill-opacity": 0.45,
-                "fill-outline-color": "rgba(0,200,200,0.25)",
-              } });
+                "fill-color": "#5EEAD4",
+                "fill-opacity": 0.25,
+                "fill-outline-color": "rgba(0,0,0,0.15)",
+              }
+            });
+          }
+          else if (layerId === "h3_small") {
+            map.addLayer({
+              id: glId,
+              type: "fill",
+              source: sourceId,
+              minzoom: 11,
+              paint: {
+                "fill-color": "#2DD4BF",
+                "fill-opacity": 0.35,
+                "fill-outline-color": "rgba(0,0,0,0.25)",
+              }
+            });
+          }
           else if (layerId === "flood")
             map.addLayer({ id: glId, type: "fill", source: sourceId,
               paint: { "fill-color": "#4fc3f7", "fill-opacity": 0.3 } });
           else if (layerId === "zone")
             map.addLayer({ id: glId, type: "fill", source: sourceId,
-              paint: { "fill-color": "#FFB84D", "fill-opacity": 0.25 } });
+              paint: { "fill-color": "#FFB84D", "fill-opacity": 0.6 } });
           else
             map.addLayer({ id: glId, type: "circle", source: sourceId,
               paint: { "circle-radius": 5, "circle-color": "#ef5350", "circle-opacity": 0.8 } });
@@ -187,21 +207,64 @@ export default function IndiaMap() {
   }
 
   async function loadClusters(map) {
-    const data = await fetchClusters(120, 1.5);
+    const data = await fetchClusters();
     if (data.__fallback) addToast({ title: "Clusters", message: "Using fallback cluster data." });
     setSourceData(map, "clusters", data);
   }
 
   async function loadHotspots(map) {
     const data = await fetchHotspots();
-    if (data.__fallback) addToast({ title: "Hotspots", message: "Using fallback hotspot data." });
-    setSourceData(map, "hotspots", data);
+
+    console.log("🔥 HOTSPOTS RAW DATA:", data);
+
+    const features = (data.features || [])
+      // ✅ only actual hotspots
+      .filter(f => f.properties?.is_hotspot === true)
+
+      // ✅ convert polygon → centroid
+      .map((f) => {
+        if (f.geometry.type === "Polygon") {
+          const coords = f.geometry.coordinates[0];
+
+          const lon = coords.reduce((sum, c) => sum + c[0], 0) / coords.length;
+          const lat = coords.reduce((sum, c) => sum + c[1], 0) / coords.length;
+
+          return {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [lon, lat],
+            },
+            properties: f.properties,
+          };
+        }
+
+        return f;
+      });
+
+    console.log("✅ HOTSPOTS AFTER CONVERSION:", features.length);
+
+    setSourceData(map, "hotspots", {
+      type: "FeatureCollection",
+      features,
+    });
   }
 
-  async function loadIsochrones(map) {
-    const raw = map.getCenter();
-    const lat = Math.max(AHMEDABAD_BBOX.minLat, Math.min(AHMEDABAD_BBOX.maxLat, raw.lat));
-    const lon = Math.max(AHMEDABAD_BBOX.minLon, Math.min(AHMEDABAD_BBOX.maxLon, raw.lng));
+  async function loadIsochrones(map, clickedLat, clickedLon) {
+    // Prefer explicitly passed coords → lastClickRef → map center (first-load fallback only)
+    let lat, lon;
+    if (clickedLat != null && clickedLon != null) {
+      lat = clickedLat;
+      lon = clickedLon;
+    } else if (lastClickRef.current) {
+      ({ lat, lon } = lastClickRef.current);
+    } else {
+      const raw = map.getCenter();
+      lat = raw.lat;
+      lon = raw.lng;
+    }
+    lat = Math.max(AHMEDABAD_BBOX.minLat, Math.min(AHMEDABAD_BBOX.maxLat, lat));
+    lon = Math.max(AHMEDABAD_BBOX.minLon, Math.min(AHMEDABAD_BBOX.maxLon, lon));
     const isoArray = await fetchIsochrones(lat, lon, "car", [10, 20, 30]);
     const features = (Array.isArray(isoArray) ? isoArray : []).flatMap((iso) =>
       iso.geometry
@@ -267,11 +330,16 @@ export default function IndiaMap() {
     });
 
     map.on("click", async (e) => {
+      
+
       const { lat, lng: lon } = e.lngLat;
       if (!isInsideAhmedabad(lat, lon)) {
         addToast({ title: "Out of bounds", message: "Please click within Ahmedabad." });
         return;
       }
+
+      // ── Persist click location so isochrones always follow the pin ──
+      lastClickRef.current = { lat, lon };
 
       // ── Drop pin immediately at click location ──────────────────
       if (markerRef.current) markerRef.current.remove();
@@ -293,6 +361,9 @@ export default function IndiaMap() {
       markerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
         .setLngLat([lon, lat])
         .addTo(map);
+
+      // ── Re-fetch isochrones centred on the new pin (if overlay is on) ──
+      if (overlays.isochrones) loadIsochrones(map, lat, lon);
 
       try {
         const scoreData = await scoreLocation(lat, lon, weights, useCase);

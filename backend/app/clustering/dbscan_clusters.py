@@ -13,9 +13,9 @@ from shapely.ops import unary_union
 def run_dbscan(
     gdf: gpd.GeoDataFrame,
     score_col: str = "avg_score",
-    min_score: float = 40.0,
-    eps_m: float = 5000.0,
-    min_samples: int = 3,
+    min_score: float = 70.0,
+    eps_m: float = 500.0,
+    min_samples: int = 4,
 ) -> gpd.GeoDataFrame:
     """
     Run DBSCAN on H3 hex centroids whose avg_score >= min_score.
@@ -85,7 +85,7 @@ def get_clusters_geojson(engine, min_score: float = 40.0) -> dict:
     for table in ("h3_grid_res8", "h3_grid_res7"):
         try:
             gdf = gpd.read_postgis(
-                f"SELECT geometry FROM {table} LIMIT 100000",
+                f"SELECT geometry, avg_score FROM {table} LIMIT 100000",
                 engine,
                 geom_col="geometry",
             )
