@@ -145,13 +145,12 @@ GSRA/
 ├── data/
 │   ├── raw/
 │   ├── processed/
-│   └── get_data.txt/                   # Link to all the datasets for the both raw/ and processed/
+│   └── get_data.txt/     # Link to all the datasets for the both raw/ and processed/
 |
 ├── martin
 └── README.md
-
-This separation ensures scalability by avoiding expensive recomputation across thousands of spatial cells.
 ```
+> This separation ensures **scalability** by avoiding expensive recomputation across thousands of spatial cells.
 
 ---
 
