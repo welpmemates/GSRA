@@ -38,9 +38,10 @@ function pixelToLatLon(x, y, rectWidth, rectHeight) {
   return { lat, lon };
 }
 
+
 export default function MapCanvas() {
   const mapRef = useRef(null);
-  const { setPopup, sidebarOpen, weights, useCase, addToast } = useStore();
+  const { setPopup, sidebarOpen, weights, useCase, addToast, setDroppedPin, droppedPin } = useStore();
 
   async function handleClick(e) {
     const rect = mapRef.current?.getBoundingClientRect();
@@ -64,6 +65,10 @@ export default function MapCanvas() {
       return;
     }
 
+    // Store raw pixel coords directly — no roundtrip through lat/lon needed
+    // This guarantees the pin renders exactly where the user clicked
+    setDroppedPin({ px: x, py: y });
+
     try {
       const scoreData = await scoreLocation(lat, lon, weights, useCase);
       if (!scoreData) return;
@@ -78,6 +83,9 @@ export default function MapCanvas() {
       addToast({ title: "Score error", message: "Unable to retrieve score from the server." });
     }
   }
+
+  // Pin pixel position comes straight from the click — no computation needed
+  const pin = droppedPin ?? null;
 
   return (
     <div
@@ -99,6 +107,9 @@ export default function MapCanvas() {
             <stop offset="60%" stopColor="transparent" />
             <stop offset="100%" stopColor="rgba(255,255,255,0.3)" />
           </radialGradient>
+          <filter id="pin-shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(0,0,0,0.35)" />
+          </filter>
         </defs>
 
         <rect width="100%" height="100%" fill="url(#gs-dots)" />
@@ -139,6 +150,22 @@ export default function MapCanvas() {
             )}
           </g>
         ))}
+
+        {/* ── Dropped pin: shows where the user last clicked ── */}
+        {pin && (
+          <g filter="url(#pin-shadow)">
+            {/* Pulsing halo */}
+            <circle cx={pin.px} cy={pin.py} r={18} fill="rgba(20,184,166,0.12)" />
+            <circle cx={pin.px} cy={pin.py} r={10} fill="rgba(20,184,166,0.20)" />
+            {/* Pin teardrop body */}
+            <path
+              d={`M${pin.px},${pin.py + 22} C${pin.px - 12},${pin.py + 6} ${pin.px - 12},${pin.py - 14} ${pin.px},${pin.py - 16} C${pin.px + 12},${pin.py - 14} ${pin.px + 12},${pin.py + 6} ${pin.px},${pin.py + 22} Z`}
+              fill="#14B8A6"
+            />
+            {/* Pin inner dot */}
+            <circle cx={pin.px} cy={pin.py - 6} r={4} fill="#FFFFFF" opacity={0.9} />
+          </g>
+        )}
 
         <rect width="100%" height="100%" fill="url(#vignette)" />
       </svg>

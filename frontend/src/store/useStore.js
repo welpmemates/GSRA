@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { WEIGHT_PROFILES } from "../data/mockData";
+import { optimizeWeights, fromBackendWeights, scoreLocation } from "../api/api";
 
 const useStore = create((set, get) => ({
   // ── Active page ────────────────────────────────────────────────
@@ -88,6 +89,51 @@ const useStore = create((set, get) => ({
   // ── Map satellite view ─────────────────────────────────────────
   satelliteView: false,
   toggleSatelliteView: () => set((s) => ({ satelliteView: !s.satelliteView })),
+
+  // ── RL-inspired weight optimizer ───────────────────────────────
+  // State  = current location + spatial metrics
+  // Action = weight vector selection
+  // Reward = final score (0–300 from backend, normalised 0–100 in frontend)
+  isOptimizing: false,
+  optimizeWeightsForLocation: async () => {
+    const { useCase, lastSite, weights, setWeights, addToast } = get();
+
+    if (!lastSite) {
+      addToast({ title: "No site selected", message: "Click a location on the map first." });
+      return;
+    }
+
+    set({ isOptimizing: true });
+    try {
+      const res = await optimizeWeights(lastSite.lat, lastSite.lng, useCase);
+      const newWeights = fromBackendWeights(res.optimal_weights);
+      setWeights(newWeights);
+
+      // Re-run scoring with the freshly optimised weights so panel updates immediately
+      const newScore = await scoreLocation(lastSite.lat, lastSite.lng, newWeights, useCase);
+      if (newScore) {
+        set({ lastScore: newScore });
+        // Also patch the popup score if one is open
+        const popup = get().popup;
+        if (popup) set({ popup: { ...popup, score: newScore } });
+      }
+
+      addToast({
+        title: "Weights optimised ✓",
+        message: `Best score: ${Math.round(res.best_score / 3)}/100. Sliders updated.`,
+      });
+    } catch (e) {
+      console.error("Optimization failed", e);
+      addToast({ title: "Optimise failed", message: "Could not reach the optimizer. Try again." });
+    } finally {
+      set({ isOptimizing: false });
+    }
+  },
+
+  // ── Dropped pin (click marker on map) ─────────────────────────
+  droppedPin: null,   // { lat, lon } | null
+  setDroppedPin: (pin) => set({ droppedPin: pin }),
+  clearDroppedPin: () => set({ droppedPin: null }),
 }));
 
 export default useStore;

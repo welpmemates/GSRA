@@ -165,3 +165,8 @@ html, body, #root {
   from { stroke-dasharray: 0 999; }
 }
 .animate-score-ring { animation: score-ring 0.85s cubic-bezier(0.4,0,0.2,1) forwards; }
+
+/* ── GSRA: optimizer spinner ─────────────────────────────────────────────── */
+@keyframes gsra-spin {
+  to { transform: rotate(360deg); }
+}

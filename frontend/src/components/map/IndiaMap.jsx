@@ -58,6 +58,7 @@ export default function IndiaMap() {
   const containerRef = useRef(null);
   const mapRef       = useRef(null);
   const loadedRef    = useRef(false);
+  const markerRef    = useRef(null); // dropped pin marker
 
   const {
     activeLayers, overlays, weights, satelliteView,
@@ -271,6 +272,28 @@ export default function IndiaMap() {
         addToast({ title: "Out of bounds", message: "Please click within Ahmedabad." });
         return;
       }
+
+      // ── Drop pin immediately at click location ──────────────────
+      if (markerRef.current) markerRef.current.remove();
+      const el = document.createElement("div");
+      el.innerHTML = `
+        <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="pshadow" x="-40%" y="-20%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.35)"/>
+            </filter>
+          </defs>
+          <g filter="url(#pshadow)">
+            <path d="M16 2 C8.268 2 2 8.268 2 16 C2 24 16 40 16 40 C16 40 30 24 30 16 C30 8.268 23.732 2 16 2 Z"
+              fill="#14B8A6" stroke="#0D9488" stroke-width="1.5"/>
+            <circle cx="16" cy="16" r="6" fill="white" opacity="0.95"/>
+          </g>
+        </svg>`;
+      el.style.cssText = "cursor:pointer; animation: pinDrop 0.3s cubic-bezier(0.34,1.56,0.64,1)";
+      markerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
+        .setLngLat([lon, lat])
+        .addTo(map);
+
       try {
         const scoreData = await scoreLocation(lat, lon, weights, useCase);
         if (!scoreData) return;
@@ -305,6 +328,11 @@ export default function IndiaMap() {
         .maplibregl-canvas-container { position: absolute; inset: 0; width: 100%; height: 100%; }
         .maplibregl-canvas { width: 100% !important; height: 100% !important; }
         .maplibregl-ctrl-logo, .maplibregl-ctrl-bottom-right { display: none !important; }
+        @keyframes pinDrop {
+          0%   { transform: translateY(-24px) scale(0.7); opacity: 0; }
+          70%  { transform: translateY(4px)   scale(1.08); opacity: 1; }
+          100% { transform: translateY(0)     scale(1);    opacity: 1; }
+        }
       `}</style>
     </div>
   );

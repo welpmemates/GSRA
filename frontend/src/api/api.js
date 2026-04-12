@@ -258,3 +258,34 @@ export async function startRlOptimize() {
 export async function getRlStatus(taskId) {
   return { status: "unknown" };
 }
+
+// ── RL-inspired weight optimizer ──────────────────────────────────────────────
+// Simulates RL: State = location + metrics, Action = weight selection,
+// Reward = final score. Backend hill-climbs weights to maximise score.
+
+/**
+ * Convert backend weight keys → frontend weight keys
+ * Backend: demographic, transportation, poi_competitor, land_use, environmental
+ * Frontend: demographics, transport, competitors, zoning, environment
+ */
+export function fromBackendWeights(w) {
+  return {
+    demographics: w.demographic      ?? 0.25,
+    transport:    w.transportation   ?? 0.25,
+    competitors:  w.poi_competitor   ?? 0.20,
+    zoning:       w.land_use         ?? 0.15,
+    environment:  w.environmental    ?? 0.15,
+  };
+}
+
+/**
+ * POST /api/optimize → { optimal_weights, best_score }
+ */
+export async function optimizeWeights(lat, lon, frontendUseCase) {
+  const response = await apiClient.post("/api/optimize", {
+    lat,
+    lon,
+    use_case: toBackendUseCase(frontendUseCase ?? "Retail"),
+  });
+  return response.data; // { optimal_weights: {...}, best_score: number }
+}

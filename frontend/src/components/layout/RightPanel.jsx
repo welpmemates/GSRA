@@ -16,7 +16,7 @@ const CITY_BREAKDOWN = {
 };
 
 export default function RightPanel() {
-  const { useCase, lastScore, lastSite } = useStore();
+  const { useCase, lastScore, lastSite, optimizeWeightsForLocation, isOptimizing } = useStore();
 
   // If a site has been scored, show that; otherwise show city overview
   const isLive      = !!lastScore;
@@ -74,6 +74,55 @@ export default function RightPanel() {
             </div>
           </div>
         </div>
+
+        {/* ── Auto Optimize button ─────────────────────────────────────
+            RL interpretation:
+              State  = current lat/lon + spatial metrics for this location
+              Action = weight vector selected by the hill-climber
+              Reward = final score returned by /api/optimize
+            The backend iterates weight combinations to maximise reward,
+            then returns the best weights — we apply them and re-score. */}
+        {isLive && (
+          <button
+            onClick={optimizeWeightsForLocation}
+            disabled={isOptimizing}
+            style={{
+              marginTop:       14,
+              width:           "100%",
+              padding:         "9px 0",
+              background:      isOptimizing ? "#F5F5F5" : "linear-gradient(135deg,#14B8A6,#0D9488)",
+              color:           isOptimizing ? "#AAAAAA" : "#FFFFFF",
+              border:          isOptimizing ? "1px solid #E5E5E5" : "none",
+              borderRadius:    6,
+              fontSize:        12,
+              fontWeight:      600,
+              cursor:          isOptimizing ? "not-allowed" : "pointer",
+              display:         "flex",
+              alignItems:      "center",
+              justifyContent:  "center",
+              gap:             6,
+              letterSpacing:   "0.02em",
+              boxShadow:       isOptimizing ? "none" : "0 2px 6px rgba(20,184,166,0.35)",
+              transition:      "all 0.18s ease",
+            }}
+          >
+            {isOptimizing ? (
+              <>
+                <span style={{
+                  display:      "inline-block",
+                  width:        11, height: 11,
+                  border:       "2px solid #CCCCCC",
+                  borderTop:    "2px solid #888888",
+                  borderRadius: "50%",
+                  animation:    "gsra-spin 0.7s linear infinite",
+                }} />
+                Optimizing weights…
+              </>
+            ) : (
+              <>⚡ Auto Optimize Weights</>
+            )}
+          </button>
+        )}
       </div>
 
       <div className="flex-shrink-0 px-5 py-4" style={{ borderBottom: "1px solid #E5E5E5" }}>
